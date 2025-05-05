@@ -1,124 +1,55 @@
-class PriorityQueue {
+class PQ {
     constructor() {
-        this.heap = [];
+        this.items = [];
     }
- 
-    // Helper Methods
-    getLeftChildIndex(parentIndex) {
-        return 2 * parentIndex + 1;
-    }
- 
-    getRightChildIndex(parentIndex) {
-        return 2 * parentIndex + 2;
-    }
- 
-    getParentIndex(childIndex) {
-        return Math.floor((childIndex - 1) / 2);
-    }
- 
-    hasLeftChild(index) {
-        return this.getLeftChildIndex(index) < this.heap.length;
-    }
- 
-    hasRightChild(index) {
-        return this.getRightChildIndex(index) < this.heap.length;
-    }
- 
-    hasParent(index) {
-        return this.getParentIndex(index) >= 0;
-    }
- 
-    leftChild(index) {
-        return this.heap[this.getLeftChildIndex(index)];
-    }
- 
-    rightChild(index) {
-        return this.heap[this.getRightChildIndex(index)];
-    }
- 
-    parent(index) {
-        return this.heap[this.getParentIndex(index)];
-    }
- 
-    swap(indexOne, indexTwo) {
-        const temp = this.heap[indexOne];
-        this.heap[indexOne] = this.heap[indexTwo];
-        this.heap[indexTwo] = temp;
-    }
- 
-    peek() {
-        if (this.heap.length === 0) {
-            return null;
-        }
-        return this.heap[0];
-    }
- 
-    remove() {
-        if (this.heap.length === 0) {
-            return null;
-        }
-        const item = this.heap[0];
-        this.heap[0] = this.heap[this.heap.length - 1];
-        this.heap.pop();
-        this.heapifyDown();
-        return item;
-    }
- 
-    add(item) {
-        this.heap.push(item);
-        this.heapifyUp();
-    }
- 
-    heapifyUp() {
-        let index = this.heap.length - 1;
-        // Changed comparison to build a min heap (parent > child)
-        while (this.hasParent(index) && this.parent(index) > this.heap[index]) {
-            this.swap(this.getParentIndex(index), index);
-            index = this.getParentIndex(index);
-        }
-    }
- 
-    heapifyDown() {
-        let index = 0;
-        while (this.hasLeftChild(index)) {
-            let smallerChildIndex = this.getLeftChildIndex(index);
-            // Changed comparison to find smaller child, not larger
-            if (this.hasRightChild(index) && this.rightChild(index) < this.leftChild(index)) {
-                smallerChildIndex = this.getRightChildIndex(index);
+
+    enqueue(element) {
+        if(this.items.length === 0){
+            this.items.push(element);
+        } else {
+            let added = false;
+            for (let i = 0; i < this.items.length; i++) {
+                if(element < this.items[i]) {
+                    this.items.splice(i, 0, element);
+                    added = true;
+                    break;
+                }
             }
-            // Changed comparison for min heap
-            if (this.heap[index] < this.heap[smallerChildIndex]) {
-                break;
-            } else {
-                this.swap(index, smallerChildIndex);
+            if(!added) {
+                this.items.push(element);
             }
-            index = smallerChildIndex;
         }
+    }
+
+
+    dequeue(){
+        return this.items.shift();
     }
 }
-    
+
+
 function solution(scoville, K) {
 
-    const pq = new PriorityQueue();
+    const pq = new PQ();
     let answer = 0;
     
     for(let i = 0; i < scoville.length; i++) {
-        pq.add(scoville[i]);    
+        pq.enqueue(scoville[i]);    
     }
 
     while(true){
 
-        if(pq.peek() >= K){
+        if(pq.items[0] >= K){
             break;
         }
 
-        pq.add(pq.remove() + pq.remove() * 2);
+        pq.enqueue(pq.dequeue() + pq.dequeue() * 2);
         answer++;
 
 
-        if(pq.heap.length === 1){
-           if(pq.peek() < K){
-               answer = -1;
+        if(pq.items.length === 1){
+            if(pq.items[0] < K){
+                answer = -1;
             }
             break;
         }
@@ -126,4 +57,3 @@ function solution(scoville, K) {
 
     return answer;
 }
-
